@@ -13,7 +13,7 @@ a dingding app auth django app. you should have follow this [section](https://op
  ]
 ```
 
-2. Include the polls URLconf in your project urls.py like this::
+2. Include the URLconf in your project urls.py like this::
 
 ```python
 path('dingding/', include("django_auth_dingding.urls")),
