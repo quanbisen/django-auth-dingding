@@ -19,11 +19,11 @@ class DingdingAuthenticationCallbackView(View):
 
     @property
     def failure_url(self):
-        return self.get_settings("DINGDING_LOGIN_REDIRECT_URL_FAILURE", "/")
+        return self.get_settings("AUTH_DINGDING_LOGIN_REDIRECT_URL_FAILURE", "/")
 
     @property
     def success_url(self):
-        return resolve_url(self.get_settings("DINGDING_LOGIN_REDIRECT_URL", "/"))
+        return resolve_url(self.get_settings("AUTH_DINGDING_LOGIN_REDIRECT_URL", "/"))
 
     def login_failure(self):
         return HttpResponseRedirect(self.failure_url)
@@ -46,12 +46,12 @@ class DingdingAuthenticationCallbackView(View):
         code = request.GET.get("authCode")
         if code:
             params = {
-                "clientId": self.get_settings("DINGDING_AUTH_APP_KEY"),
-                "clientSecret": self.get_settings("DINGDING_AUTH_APP_SECRET"),
+                "clientId": self.get_settings("AUTH_DINGDING_APP_KEY"),
+                "clientSecret": self.get_settings("AUTH_DINGDING_APP_SECRET"),
                 "code": code,
                 "grantType": "authorization_code",
             }
-            res = requests.post(url=self.get_settings("DINGDING_AUTH_ACCESS_TOKEN_ENDPOINT",
+            res = requests.post(url=self.get_settings("AUTH_DINGDING_ACCESS_TOKEN_ENDPOINT",
                                                       "https://api.dingtalk.com/v1.0/oauth2/userAccessToken"),
                                 json=params)
 
@@ -62,7 +62,7 @@ class DingdingAuthenticationCallbackView(View):
 
             # get user info
             headers = {"x-acs-dingtalk-access-token": access_token}
-            res = requests.get(url=self.get_settings("DINGDING_AUTH_USER_INFO_ENDPOINT",
+            res = requests.get(url=self.get_settings("AUTH_DINGDING_USER_INFO_ENDPOINT",
                                                      "https://api.dingtalk.com/v1.0/contact/users/me"), headers=headers)
 
             # Check if the "unionId" exists!
@@ -72,8 +72,8 @@ class DingdingAuthenticationCallbackView(View):
 
             # get app access_token
             params = {
-                "appkey": self.get_settings("DINGDING_AUTH_APP_KEY"),
-                "appsecret": self.get_settings("DINGDING_AUTH_APP_SECRET"),
+                "appkey": self.get_settings("AUTH_DINGDING_APP_KEY"),
+                "appsecret": self.get_settings("AUTH_DINGDING_APP_SECRET"),
             }
             res = requests.get(url="https://oapi.dingtalk.com/gettoken?{params}".format(params=urlencode(params)))
 
@@ -117,9 +117,9 @@ class DingdingAuthenticationRequestView(View):
 
     def __init__(self, *args, **kwargs):
         super(DingdingAuthenticationRequestView, self).__init__(*args, **kwargs)
-        self.DINGDING_AUTH_AUTHORIZATION_ENDPOINT = self.get_settings("DINGDING_AUTH_AUTHORIZATION_ENDPOINT",
+        self.AUTH_DINGDING_AUTHORIZATION_ENDPOINT = self.get_settings("AUTH_DINGDING_AUTHORIZATION_ENDPOINT",
                                                                       "https://login.dingtalk.com/oauth2/auth")
-        self.DINGDING_AUTH_APP_KEY = self.get_settings("DINGDING_AUTH_APP_KEY")
+        self.AUTH_DINGDING_APP_KEY = self.get_settings("AUTH_DINGDING_APP_KEY")
 
     @staticmethod
     def get_settings(attr, *args):
@@ -128,18 +128,18 @@ class DingdingAuthenticationRequestView(View):
     def get(self, request):
         """Dingding client authentication initialization HTTP endpoint"""
         callback_url = self.get_settings(
-            "DINGDING_AUTH_AUTHENTICATION_CALLBACK_URL", "dingding_auth_authentication_callback"
+            "AUTH_DINGDING_AUTHENTICATION_CALLBACK_URL", "dingding_auth_authentication_callback"
         )
 
         params = {
             "response_type": "code",
             "scope": "openid",
-            "client_id": self.DINGDING_AUTH_APP_KEY,
+            "client_id": self.AUTH_DINGDING_APP_KEY,
             "redirect_uri": callback_url,
             "state": "dddd",
         }
         query = urlencode(params)
         redirect_url = "{url}?{query}".format(
-            url=self.DINGDING_AUTH_AUTHORIZATION_ENDPOINT, query=query
+            url=self.AUTH_DINGDING_AUTHORIZATION_ENDPOINT, query=query
         )
         return HttpResponseRedirect(redirect_url)
