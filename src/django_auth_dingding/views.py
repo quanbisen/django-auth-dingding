@@ -137,6 +137,7 @@ class DingdingAuthenticationRequestView(View):
             "client_id": self.AUTH_DINGDING_APP_KEY,
             "redirect_uri": callback_url,
             "state": "dddd",
+            "prompt": "consent"
         }
         query = urlencode(params)
         redirect_url = "{url}?{query}".format(

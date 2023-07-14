@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django_auth_dingding"
-version = "0.0.1"
+version = "0.0.3"
 authors = [
   { name="quanbisen", email="1769128867@qq.com" },
 ]
